@@ -26,7 +26,7 @@ jobs:
         env:
           LINKEDIN_USERNAME: ${{ secrets.LINKEDIN_USERNAME }}
           LINKEDIN_PASSWORD: ${{ secrets.LINKEDIN_PASSWORD }}
-        run: python src/save_auth.py
+        run: python save_auth.py
 
       - name: Run bot
         run: python src/main.py
