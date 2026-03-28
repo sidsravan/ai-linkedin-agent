@@ -14,7 +14,11 @@ def post_to_linkedin(content):
     from playwright.sync_api import sync_playwright
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
+        browser = p.chromium.launch(
+            headless=True,
+            args=["--disable-blink-features=AutomationControlled"]
+        )
+
         context = browser.new_context(storage_state="auth.json")
         page = context.new_page()
 
