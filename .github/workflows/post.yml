@@ -2,7 +2,7 @@ name: Auto LinkedIn Post
 
 on:
   schedule:
-    - cron: "0 9 * * FRI"  # every Friday at 9 AM UTC
+    - cron: "0 9 * * FRI"
   workflow_dispatch:
 
 jobs:
@@ -23,10 +23,13 @@ jobs:
           playwright install chromium
 
       - name: Refresh LinkedIn auth.json
+        id: refresh
         env:
           LINKEDIN_USERNAME: ${{ secrets.LINKEDIN_USERNAME }}
           LINKEDIN_PASSWORD: ${{ secrets.LINKEDIN_PASSWORD }}
         run: python save_auth.py
 
       - name: Run bot
+        env:
+          LINKEDIN_AUTH: ${{ steps.refresh.outputs.auth }}
         run: python src/main.py
