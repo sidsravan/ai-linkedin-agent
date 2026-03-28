@@ -15,17 +15,23 @@ def post_to_linkedin(content):
 
         page.goto("https://www.linkedin.com/feed/")
         page.wait_for_timeout(5000)
+        page.screenshot(path="debug_feed.png")
 
         if "login" in page.url:
-            print("⚠️ Login failed, skipping post")
+            print("⚠️ Login failed, screenshot saved as debug_feed.png")
             return
 
         page.get_by_role("button", name="Start a post").click()
         page.wait_for_timeout(3000)
+        page.screenshot(path="debug_post_dialog.png")
+
         page.locator("div[role='textbox']").first.fill(content)
         page.wait_for_timeout(2000)
+
+        # Scoped selector for Post button
         page.locator("button.share-actions__primary-action").click()
         page.wait_for_timeout(5000)
+        page.screenshot(path="debug_post_done.png")
 
         print("✅ Post submitted successfully")
         browser.close()

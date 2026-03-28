@@ -2,7 +2,7 @@ name: Auto LinkedIn Post
 
 on:
   schedule:
-    - cron: "0 9 * * FRI"   # every Friday 9 AM UTC
+    - cron: "0 9 * * FRI"
   workflow_dispatch:
 
 jobs:
@@ -26,7 +26,32 @@ jobs:
         env:
           LINKEDIN_USERNAME: ${{ secrets.LINKEDIN_USERNAME }}
           LINKEDIN_PASSWORD: ${{ secrets.LINKEDIN_PASSWORD }}
-        run: python save_auth.py
+        run: python src/save_auth.py
 
       - name: Run bot
         run: python src/main.py
+
+      # Debug artifacts
+      - name: Upload login screenshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-login
+          path: debug_login.png
+
+      - name: Upload feed screenshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-feed
+          path: debug_feed.png
+
+      - name: Upload post dialog screenshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-dialog
+          path: debug_post_dialog.png
+
+      - name: Upload final post screenshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-done
+          path: debug_post_done.png

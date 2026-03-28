@@ -16,8 +16,9 @@ with sync_playwright() as p:
     page.click("button[type=submit]")
 
     page.wait_for_timeout(5000)
+    page.screenshot(path="debug_login.png")
+    print("Current URL after login:", page.url)
 
-    # Save cookies
     context.storage_state(path="auth.json")
     print("✅ auth.json refreshed successfully")
     browser.close()
