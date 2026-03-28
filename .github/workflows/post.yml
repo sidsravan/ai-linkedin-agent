@@ -2,33 +2,31 @@ name: Auto LinkedIn Post
 
 on:
   schedule:
-    - cron: "0 9 * * FRI"
+    - cron: "0 9 * * FRI"  # every Friday at 9 AM UTC
   workflow_dispatch:
 
 jobs:
   post:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
-      - name: Install Python
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.10"
 
-      - name: Install deps
+      - name: Install dependencies
         run: |
           pip install -r requirements.txt
-          playwright install
+          playwright install chromium
+
+      - name: Refresh LinkedIn auth.json
+        env:
+          LINKEDIN_USERNAME: ${{ secrets.LINKEDIN_USERNAME }}
+          LINKEDIN_PASSWORD: ${{ secrets.LINKEDIN_PASSWORD }}
+        run: python src/save_auth.py
 
       - name: Run bot
-        env:
-          LINKEDIN_AUTH: ${{ secrets.LINKEDIN_AUTH }}
         run: python src/main.py
-        
-      - name: Upload debug screenshot
-        uses: actions/upload-artifact@v4
-        with:
-          name: debug
-          path: debug.png        
