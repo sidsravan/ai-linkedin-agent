@@ -1,0 +1,28 @@
+name: Auto LinkedIn Post
+
+on:
+  schedule:
+    - cron: "0 9 * * FRI"
+  workflow_dispatch:
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: |
+          pip install -r requirements.txt
+          playwright install
+
+      - name: Run bot
+        env:
+          LINKEDIN_AUTH: ${{ secrets.LINKEDIN_AUTH }}
+        run: python src/main.py
