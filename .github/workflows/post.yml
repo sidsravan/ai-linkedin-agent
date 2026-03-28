@@ -9,7 +9,7 @@ jobs:
   post:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Set up Python
@@ -22,35 +22,41 @@ jobs:
           pip install -r requirements.txt
           playwright install chromium
 
-      - name: Refresh LinkedIn auth.json
-        env:
-          LINKEDIN_USERNAME: ${{ secrets.LINKEDIN_USERNAME }}
-          LINKEDIN_PASSWORD: ${{ secrets.LINKEDIN_PASSWORD }}
-        run: python save_auth.py
+      - name: Decode LINKEDIN_AUTH to auth.json
+        if: secrets.LINKEDIN_AUTH != ''
+        run: |
+          python - <<'PY'
+          import os, base64, sys
+          s = os.getenv("LINKEDIN_AUTH")
+          if not s:
+              print("LINKEDIN_AUTH not set")
+              sys.exit(0)
+          open("auth.json","wb").write(base64.b64decode(s))
+          print("auth.json written")
+          PY
 
       - name: Run bot
         run: python src/main.py
 
-      # Debug artifacts
-      - name: Upload login screenshot
+      - name: Upload debug_login
         uses: actions/upload-artifact@v4
         with:
           name: debug-login
           path: debug_login.png
 
-      - name: Upload feed screenshot
+      - name: Upload debug_feed
         uses: actions/upload-artifact@v4
         with:
           name: debug-feed
           path: debug_feed.png
 
-      - name: Upload post dialog screenshot
+      - name: Upload debug_post_dialog
         uses: actions/upload-artifact@v4
         with:
           name: debug-dialog
           path: debug_post_dialog.png
 
-      - name: Upload final post screenshot
+      - name: Upload debug_post_done
         uses: actions/upload-artifact@v4
         with:
           name: debug-done
