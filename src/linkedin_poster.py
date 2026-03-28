@@ -11,6 +11,8 @@ def load_auth():
 def post_to_linkedin(content):
     load_auth()
 
+    from playwright.sync_api import sync_playwright
+
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
         context = browser.new_context(storage_state="auth.json")
@@ -19,14 +21,24 @@ def post_to_linkedin(content):
         page.goto("https://www.linkedin.com/feed/")
         page.wait_for_timeout(5000)
 
-        page.click("text=Start a post")
+        # Debug screenshot
+        page.screenshot(path="debug.png")
+
+        # Check login
+        if "login" in page.url:
+            raise Exception("❌ LinkedIn session expired. Recreate auth.json")
+
+        # Click start post
+        page.get_by_role("button", name="Start a post").click()
+        page.wait_for_timeout(3000)
+
+        # Fill content
+        page.locator("div[role='textbox']").first.fill(content)
+
         page.wait_for_timeout(2000)
 
-        page.fill("div[role='textbox']", content)
-
-        page.wait_for_timeout(1000)
-        #page.click("text=Post")
+        # Click post
+        page.get_by_role("button", name="Post").click()
 
         page.wait_for_timeout(5000)
-
         browser.close()
