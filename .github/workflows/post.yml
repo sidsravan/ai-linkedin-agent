@@ -24,11 +24,9 @@ jobs:
           pip install -r requirements.txt
           playwright install chromium
 
-      # - name: Refresh LinkedIn auth.json
-      #   env:
-      #     LINKEDIN_USERNAME: ${{ secrets.LINKEDIN_USERNAME }}
-      #     LINKEDIN_PASSWORD: ${{ secrets.LINKEDIN_PASSWORD }}
-      #   run: python save_auth.py
+      - name: Restore LinkedIn auth
+        run: |
+          echo "${{ secrets.LINKEDIN_AUTH_JSON_BASE64 }}" | base64 --decode > auth.json
 
       - name: Run bot
         run: python src/main.py
@@ -39,21 +37,25 @@ jobs:
         with:
           name: debug-login
           path: debug_login.png
+          if-no-files-found: ignore
 
       - name: Upload feed screenshot
         uses: actions/upload-artifact@v4
         with:
           name: debug-feed
           path: debug_feed.png
+          if-no-files-found: ignore
 
       - name: Upload post dialog screenshot
         uses: actions/upload-artifact@v4
         with:
           name: debug-dialog
           path: debug_post_dialog.png
+          if-no-files-found: ignore
 
       - name: Upload final post screenshot
         uses: actions/upload-artifact@v4
         with:
           name: debug-done
           path: debug_post_done.png
+          if-no-files-found: ignore

@@ -1,8 +1,11 @@
 from playwright.sync_api import sync_playwright
 import os
 
-username = os.getenv("LINKEDIN_USERNAME")
-password = os.getenv("LINKEDIN_PASSWORD")
+# username = os.getenv("LINKEDIN_USERNAME")
+# password = os.getenv("LINKEDIN_PASSWORD")
+
+username = os.getenv("LINKEDIN_USERNAME", "your_email@example.com")
+password = os.getenv("LINKEDIN_PASSWORD", "your_password_here")
 
 with sync_playwright() as p:
     browser = p.chromium.launch(headless=True)
