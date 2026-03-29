@@ -8,27 +8,37 @@ def load_auth():
 
 def post_to_linkedin(content):
     load_auth()
+
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
         context = browser.new_context(storage_state="auth.json")
         page = context.new_page()
 
         page.goto("https://www.linkedin.com/feed/")
-        page.wait_for_timeout(5000)
+        page.wait_for_load_state("networkidle")
         page.screenshot(path="debug_feed.png")
 
-        if "login" in page.url:
-            print("⚠️ Login failed, screenshot saved as debug_feed.png")
+        if any(token in page.url for token in ["/login", "/checkpoint", "/authentication"]):
+            print("⚠️ Login/challenge detected, screenshot saved as debug_feed.png")
             return
 
-        page.get_by_role("button", name="Start a post").click()
+        post_button = page.locator(
+            "button:has-text('Start a post'), "
+            "button:has-text('Create a post'), "
+            "button.share-box-feed-entry__trigger"
+        ).first
+
+        if post_button.count() == 0:
+            print("⚠️ Could not find Start a post button; screenshot saved as debug_feed.png")
+            return
+
+        post_button.click()
         page.wait_for_timeout(3000)
         page.screenshot(path="debug_post_dialog.png")
 
         page.locator("div[role='textbox']").first.fill(content)
         page.wait_for_timeout(2000)
 
-        # Scoped selector for Post button
         page.locator("button.share-actions__primary-action").click()
         page.wait_for_timeout(5000)
         page.screenshot(path="debug_post_done.png")
